@@ -206,15 +206,30 @@ variable "lb_target_groups" {
   )
 }
 
-variable "container_volumes" {
-  description = "Volumes that containers in your task may use."
-  default     = []
-  type = list(
-    object({
-      name = string
-    })
-  )
-
+variable "volumes" {
+  description = "(Optional) A set of volume blocks that containers in your task may use"
+  type = list(object({
+    name      = string
+    host_path = optional(string)
+    docker_volume_configuration = optional(list(object({
+      autoprovision = bool
+      driver        = string
+      driver_opts   = map(string)
+      labels        = map(string)
+      scope         = string
+    })))
+    efs_volume_configuration = optional(list(object({
+      file_system_id          = string
+      root_directory          = string
+      transit_encryption      = optional(string)
+      transit_encryption_port = optional(string)
+      authorization_config = optional(list(object({
+        access_point_id = string
+        iam             = string
+      })))
+    })))
+  }))
+  default = []
 }
 
 variable "hello_world_container_ports" {
